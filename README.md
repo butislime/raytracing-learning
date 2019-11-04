@@ -1,2 +1,3 @@
 # raytracing-learning
-raytracing
+ray tracingの勉強
+https://raytracing.github.io
