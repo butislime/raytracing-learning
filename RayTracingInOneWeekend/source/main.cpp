@@ -14,12 +14,29 @@ struct Color
 	Color(unsigned char _r, unsigned char _g, unsigned char _b, unsigned char _a) : r(_r), g(_g), b(_b), a(_a) {};
 };
 
+vec3 random_in_unit_sphere()
+{
+	vec3 p;
+
+	std::random_device seed_gen;
+	std::mt19937 engine(seed_gen());
+	std::uniform_real_distribution<> dist(0, 1);
+
+	do
+	{
+		p = 2.0f * vec3(dist(engine), dist(engine), dist(engine)) - vec3(1, 1, 1);
+	} while (p.squared_length() >= 1);
+
+	return p;
+}
+
 vec3 calc_color(const ray& r, hitable* world)
 {
 	hit_record rec;
-	if (world->hit(r, 0.0f, FLT_MAX, rec))
+	if (world->hit(r, 0.0001f, FLT_MAX, rec))
 	{
-		return 0.5f * vec3(rec.normal.x() + 1, rec.normal.y() + 1, rec.normal.z() + 1);
+		vec3 target = rec.p + rec.normal + random_in_unit_sphere();
+		return 0.5f * calc_color(ray(rec.p, target - rec.p), world);
 	}
 	else
 	{
@@ -64,6 +81,7 @@ int main()
 			}
 
 			col /= float(ns);
+			col = vec3(sqrt(col[0]), sqrt(col[1]), sqrt(col[2]));
 			int ir = int(255.99f * col.r());
 			int ig = int(255.99f * col.g());
 			int ib = int(255.99f * col.b());
